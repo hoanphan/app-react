@@ -2,23 +2,24 @@
  * Created by HOANDHTB on 6/13/2017.
  */
 import React, {Component} from 'react';
-import {Text, View, Image, StyleSheet, Dimensions,TouchableOpacity} from 'react-native';
+import {Text, View, Image, StyleSheet, Dimensions,TouchableOpacity,ListView} from 'react-native';
 
 import sp1 from '../../../../media/temp/sp1.jpeg'
 import sp2 from '../../../../media/temp/sp2.jpeg'
 import sp3 from '../../../../media/temp/sp3.jpeg'
 import sp4 from '../../../../media/temp/sp4.jpeg'
 import sp5 from '../../../../media/temp/sp5.jpeg'
-
+const url='http://demoapp.ga/images/product/';
 
 export default class TopProduct extends Component {
-    gotoDetail()
+    gotoDetail(product)
     {
         const {navigator}=this.props;
-        navigator.push({name:'DETAIL'})
+        navigator.push({name:'DETAIL',product})
     }
 
     render() {
+        const {topProduct}=this.props;
         const {
             container, titleContainer, title, body,
             productContainer, productImage,
@@ -30,30 +31,22 @@ export default class TopProduct extends Component {
                 <View style={titleContainer}>
                     <Text style={title}>TOP MODEL</Text>
                 </View>
-                <View style={body}>
-                    <TouchableOpacity style={productContainer} onPress={this.gotoDetail.bind(this)}>
-                        <Image source={sp1} style={productImage}/>
-                        <Text style={productName}>Name</Text>
-                        <Text style={productPrice}>250$</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={productContainer} onPress={this.gotoDetail.bind(this)}>
-                        <Image source={sp2} style={productImage}/>
-                        <Text>Name</Text>
-                        <Text>400$</Text>
-                    </TouchableOpacity>
-                    <View style={{height:50,width:width}}/>
-                    <TouchableOpacity style={productContainer} onPress={this.gotoDetail.bind(this)}>
-                        <Image source={sp3} style={productImage}/>
-                        <Text style={productName}>Name</Text>
-                        <Text style={productPrice}>250$</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={productContainer} onPress={this.gotoDetail.bind(this)}>
-                        <Image source={sp4} style={productImage}/>
-                        <Text>Name</Text>
-                        <Text>400$</Text>
-                    </TouchableOpacity>
-                </View>
+
+                <ListView
+                    enableEmptySections
+                    contentContainerStyle={body}
+                    dataSource={new ListView.DataSource({rowHasChanged:(r1,r2)=>r1!==r2}).cloneWithRows(topProduct)}
+                    renderRow={(e)=>(  <TouchableOpacity style={productContainer} onPress={()=>this.gotoDetail(e)} key={e.id}>
+                        <Image source={{uri:`${url}${e.images[0]}`}} style={productImage}/>
+                        <Text style={productName}>{e.name.toUpperCase()}</Text>
+                        <Text style={productPrice}>{e.price}$</Text>
+                    </TouchableOpacity>)}
+                renderSeparator={(sectionID, rowID, adjacentRowHighlighted)=>{
+                    if(rowID%2===1)
+                        return<View style={{width:width,height:10}}></View>
+                } }/>
             </View>)
+
     }
 
 }
@@ -88,7 +81,8 @@ const styles = StyleSheet.create({
         width: productWidth,
         shadowColor: '#2E272B',
         shadowOffset: {width: 0, height: 3},
-        shadowOpacity: 0.2
+        shadowOpacity: 0.2,
+
     },
     productImage: {
         width: productWidth,
@@ -105,3 +99,6 @@ const styles = StyleSheet.create({
         color:'#662F90'
     }
 })
+// {cartArray.map(e => (
+
+// ))}

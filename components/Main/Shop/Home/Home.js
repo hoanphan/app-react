@@ -13,7 +13,7 @@ export default class Home extends Component {
 
 
     render() {
-        const {types}=this.props;
+        const {types,topProduct}=this.props;
 
         return(
             <NavigationExperimental.Navigator
@@ -21,13 +21,13 @@ export default class Home extends Component {
                 renderScene={(route, navigator)=> {
                     switch (route.name) {
                         case "HOME_VIEW":
-                            return <HomeView navigator={navigator} types={types}/>;
+                            return <HomeView navigator={navigator} types={types} topProduct={topProduct}/>;
                             break;
                         case "LIST_PRODUCT":
                             return <ListProduct navigator={navigator}/>;
                             break;
                         default:
-                            return <ProductDetail navigator={navigator}/>;
+                            return <ProductDetail navigator={navigator} product={route.product}/>;
                             break;
                     }
                 }}

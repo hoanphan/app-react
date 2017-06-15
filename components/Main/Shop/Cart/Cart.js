@@ -12,6 +12,11 @@ import ProductDetail from '../ProductDetail/ProductDetail'
 
 export default class Cart extends Component {
 
+    constructor(props) {
+        super(props);
+
+    }
+
     gotoDetail() {
         const {navigate} = this.props.navigation;
         navigate('product_detail')
@@ -20,25 +25,38 @@ export default class Cart extends Component {
     render() {
 
         return (
-            <MainScreenNavigator />
+            this.getNavigation()
         )
     }
+    componentDidMount()
+    {
 
+    }
+    getNavigation() {
+        const {cartArray}=this.props;
+        const MainScreenNavigator = StackNavigator({
+            Home: {
+                screen: CartView,
+                headerMode: 'none',
+                header: null,
+                navigationOptions: {
+                    header: null
+                },
+                initialRouteParams: { someParam: 'Bonjour' }
+            },
+            Detail: {
+                screen: ProductDetail, headerMode: 'none',
+                header: null,
+                navigationOptions: {
+                    header: null
+                }
+            },
+        },
+        {
+            initialRouteParams:{cartArray:cartArray  }
+        });
+
+        return (<MainScreenNavigator/> )
+    }
 }
-const MainScreenNavigator = StackNavigator({
-    Home: {
-        screen: CartView,
-        headerMode: 'none',
-        header: null,
-        navigationOptions: {
-            header: null
-        }
-    },
-    Detail: {
-        screen: ProductDetail, headerMode: 'none',
-        header: null,
-        navigationOptions: {
-            header: null
-        }
-    },
-});
+

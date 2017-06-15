@@ -2,13 +2,17 @@
  * Created by HOANDHTB on 6/13/2017.
  */
 import React, {Component} from 'react';
-import {View, Image, StyleSheet,Platform} from 'react-native';
+import {View, Image, StyleSheet, Platform} from 'react-native';
 import TabNavigator from 'react-native-tab-navigator';
 import Home from './Home/Home';
 import Contact from './Contact/Contact';
 import Cart from './Cart/Cart';
 import Search from './Search/Search';
 import Header from './Header'
+
+import initData from '../../../api/initData'
+import saveCart from '../../../api/saveCart'
+import getCart from '../../../api/getCart'
 
 
 import HomeIconS from '../../../media/appIcon/home.png'
@@ -19,58 +23,45 @@ import SearchIconS from '../../../media/appIcon/search.png'
 import SearchIcon from '../../../media/appIcon/search0.png'
 import ContactIconS from '../../../media/appIcon/contact.png'
 import ContactIcon from '../../../media/appIcon/contact0.png'
-
+import global from '../../golal';
 export default class Shop extends Component {
     constructor(props) {
         super(props)
         this.state = {
             selectedTab: "home",
-            types:[]
+            types: [],
+            topProduct: [],
+            cartArray: []
         }
+        global.addProductCart = this.addProducttoCart.bind(this);
     }
 
-    componentDidMount()
-    {
-        return fetch('http://demoapp.ga/',{
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-        })
-            .then((response) => {
-                    return response.json();
+    addProducttoCart(product) {
+        this.setState({
+            cartArray: this.state.cartArray.concat({
+                product,
+                quality: 1
             })
+        }, () => saveCart(this.state.cartArray))
+        ;
+    }
+
+    componentDidMount() {
+        return initData()
             .then((responseJson) => {
-                const {type}=responseJson;
+                const {type, product} = responseJson;
                 this.setState({
-                    types:type
+                    types: type,
+                    topProduct: product
                 })
 
             })
             .catch((error) => {
                 console.error(error);
             });
-
-
-            // fetch('http://192.168.0.102/data', {
-            //     method: 'GET',
-            //     headers: {
-            //         'Accept': 'application/json',
-            //         'Content-Type': 'application/json',
-            //     },
-            // })
-            //     .then(response => response.text()) // Convert to text instead of res.json()
-            //     .then((text) => {
-            //         if (Platform.OS === 'android') {
-            //             text = text.replace(/\r?\n/g, '').replace(/[\u0080-\uFFFF]/g, ''); // If android , I've removed unwanted chars.
-            //         }
-            //         return Console.log(text);
-            //     })
-            //     .then(response => JSON.parse(response)); // Parse the text.
-
-
+        getCart().then(cartArray => this.setState({cartArray}))
     }
+
     openMenu() {
         const {open} = this.props;
         open();
@@ -78,7 +69,7 @@ export default class Shop extends Component {
 
     render() {
         const {iconStyle} = styles;
-        const {types,selectedTab}=this.state;
+        const {types, selectedTab, topProduct, cartArray} = this.state;
 
         return (
             <View style={{flex: 1}}>
@@ -92,7 +83,7 @@ export default class Shop extends Component {
                         renderIcon={() => <Image source={HomeIcon} style={iconStyle}/>}
                         renderSelectedIcon={() => <Image source={HomeIconS} style={iconStyle}/>}
                     >
-                        <Home types={types} />
+                        <Home types={types} topProduct={topProduct}/>
                     </TabNavigator.Item>
                     <TabNavigator.Item
                         selected={selectedTab === 'cart'}
@@ -100,11 +91,11 @@ export default class Shop extends Component {
                         onPress={() => this.setState({selectedTab: 'cart'})}
                         renderIcon={() => <Image source={CartIcon} style={iconStyle}/>}
                         renderSelectedIcon={() => <Image source={CartIconS} style={iconStyle}/>}
-                        badgeText="1"
+                        badgeText={cartArray.length}
                         selectedTitleStyle={{color: '#34B089', fontFamily: 'Avenir'}}
                     >
 
-                        <Cart naviagtor={this.props.navigator}/>
+                        <Cart naviagtor={this.props.navigator} cartArray={cartArray}/>
                     </TabNavigator.Item>
                     <TabNavigator.Item
                         selected={selectedTab === 'search'}
